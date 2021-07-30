@@ -38,8 +38,16 @@ const {
 //  [Observar los tests para otros casos]
 
 var isAncestor = function(genealogyTree, ancestor, descendant){
-  // Tu código aca:
+  // // Tu código aca:
 
+  if(genealogyTree.hasOwnProperty(ancestor)){
+    for (let i=0; i < genealogyTree[ancestor].length; i++){
+      newAnc = genealogyTree[ancestor][i];
+    if ( newAnc === descendant) return true;
+    if (genealogyTree[newAnc].length>0) return isAncestor(genealogyTree, newAnc, descendant);
+    }
+  }
+  return false;
 }
 
 
@@ -75,11 +83,16 @@ var isAncestor = function(genealogyTree, ancestor, descendant){
 // Para números negativos de n debe devolver null
 // PISTA: Pueden utilizar el método Object.keys() para f(1)
 
-function secuenciaHenry(obj, n) {
+function secuenciaHenry(obj, n, i=2,f = [obj.first]) {
   // Tu código aca:
-
+  // Tu código aca:
+  if (n<0) return null;
+  f[1] = Object.keys(obj).length;
+  if (n < 2 && i == 2) return f[n];
+  f[i] = f[i-1] * f[i-2] - f[i-2];
+  if (n == 2) return f[i];
+  return secuenciaHenry(obj,n-1,i+1,f);
 }
-
 // ---------------------
 
 // ----- LinkedList -----
@@ -98,7 +111,14 @@ function secuenciaHenry(obj, n) {
 
 LinkedList.prototype.size = function(){
   // Tu código aca:
-
+  if (!this.head) return 0;
+  let _length = 0;
+  current = this.head;
+  while (current !== null){
+    _length++;
+    current = current.next;
+  }
+  return _length;
 }
 
 
@@ -119,7 +139,23 @@ LinkedList.prototype.size = function(){
 
 LinkedList.prototype.switchPos = function(pos1, pos2){
   // Tu código aca:
-
+  let current1 = this.head;
+  let current2 = this.head;
+  if (pos1 > this.size() || pos2 > this.size() || pos1 < 0 || pos2 < 0) return false;
+  else if (this.head === null) return false;
+  else {
+    for (let index = 0; index < pos1; index++) {
+      current1 = current1.next;
+    }
+    let aux = current1.value;
+    for (let i = 0; i < pos2; i++) {
+      current2 = current2.next;
+    }
+    let auxValor2 = current2.value;
+    current1.value = auxValor2;
+    current2.value = aux;
+    return true;
+  }
 }
 
 // EJERCICIO 5
@@ -134,7 +170,19 @@ LinkedList.prototype.switchPos = function(pos1, pos2){
 // El nodo 1 de la lista 1, se conecta con el nodo 1 de la lista 2.
 // Continuando con el nodo 2 de la lista 2, conectandose con el nodo 2 de la lista 2.
 var mergeLinkedLists = function(linkedListOne, linkedListTwo){
-  // Tu código aca:
+  //Tu código aca:
+  var newLinkedList = new LinkedList();
+  let currentOne = linkedListOne.head;
+  let currentTwo = linkedListTwo.head;
+
+  while (currentOne != null && currentTwo != null) {
+    newLinkedList.add(currentOne.value)
+    newLinkedList.add(currentTwo.value)
+
+    currentOne = currentOne.next;
+    currentTwo = currentTwo.next;
+  }
+  return newLinkedList;
 
 }
 
@@ -183,7 +231,20 @@ var mergeLinkedLists = function(linkedListOne, linkedListTwo){
 
 var cardGame = function(playerOneCards, playerTwoCards){
   // Tu código aca:
+  let puntos1 = 100;
+  let puntos2 = 100;
+  while (playerOneCards.size()){
+    let atk1= playerOneCards.dequeue();
+    let dfs1= playerOneCards.dequeue();
+    let atk2= playerTwoCards.dequeue();
+    let dfs2= playerTwoCards.dequeue();
+    if (atk1.attack > dfs2.defense) puntos2 = puntos2 - (atk1.attack - dfs2.defense);
+    if (atk2.attack > dfs1.defense) puntos1 = puntos1 - (atk2.attack - dfs1.defense);
+  }
 
+  if (puntos1 > puntos2) return 'PLAYER ONE';
+  if (puntos2 > puntos1) return 'PLAYER TWO';
+  if (puntos1 === puntos2) return 'TIE';
 }
 
 // ---------------
@@ -207,7 +268,21 @@ var cardGame = function(playerOneCards, playerTwoCards){
 
 BinarySearchTree.prototype.height = function(){
   // Tu código aca:
+  if (!this.value) return 0;
 
+  if (this.left === null && this.right === null) return 1;
+
+  if (this.left === null) {
+    return 1 + this.right.height();
+  }
+
+  if (this.right === null) {
+    return 1 + this.left.height();
+  }
+
+  var left = this.left.height()
+  var right = this.right.height()
+  return 1 + Math.max(left, right)
 }
 
 
@@ -229,7 +304,24 @@ BinarySearchTree.prototype.height = function(){
 
 var binarySearch = function (array, target) {
   // Tu código aca:
+  let firstElm = 0;
+  let lastElm = array.length - 1;
+  let pos = -1;
+  let search = false;
+  let half;
 
+  while (search === false && firstElm <= lastElm) {
+    half = Math.floor((firstElm + lastElm) / 2);
+    if (array[half] == target) {
+      search = true;
+      pos = half;
+    } else if (array[half] > target) {
+      lastElm = half - 1;
+    } else {
+      firstElm = half + 1;
+    }
+  }
+  return pos;
 }
 
 // EJERCICIO 9
@@ -290,7 +382,18 @@ var specialSort = function(array, orderFunction) {
 
 function closureDetect(symptoms, min) {
   // Tu código aca:
-
+  return function covidDetector(obj){
+      let counter=0;
+      for(var i=0;i<obj.symptoms.length;i++){
+        for(var j=0;j<symptoms.length;j++){
+          if(obj.symptoms[i]==symptoms[j]){
+            counter++;
+            break;}
+          }
+      }
+      if (counter >= min) return true;
+      else return false;
+  }
 }
 
 // -------------------
